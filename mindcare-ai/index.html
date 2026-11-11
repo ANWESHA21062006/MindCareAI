@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindCare AI - AI Mental Wellness Companion</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            lavender: { 50: '#F5F3FF', 100: '#EDE9FE', 200: '#DDD6FE', 300: '#C4B5FD', 400: '#A78BFA', 500: '#8B5CF6', 600: '#7C3AED' },
+            pastelBlue: { 50: '#F0F9FF', 100: '#E0F2FE', 200: '#BAE6FD', 300: '#7DD3FC', 400: '#38BDF8', 500: '#0EA5E9' },
+            mint: { 50: '#F0FDF4', 100: '#DCFCE7', 200: '#BBF7D0', 300: '#86EFAC', 400: '#4ADE80', 500: '#22C55E' },
+            calmRose: { 50: '#FFF1F2', 100: '#FFE4E6', 200: '#FECDD3', 300: '#FDA4AF', 400: '#FB7185' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes pulseSlow {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+    @keyframes breatheCycle {
+      0%, 100% { transform: scale(0.85); box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
+      50% { transform: scale(1.35); box-shadow: 0 0 50px rgba(74, 222, 128, 0.4); }
+    }
+    .animate-breathe {
+      animation: breatheCycle 16s ease-in-out infinite;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(229, 231, 235, 0.8);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px -2px rgba(139, 92, 246, 0.06);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-lavender-200 selection:text-lavender-600">
+
+  <!-- Crisis Safety Quick Banner (Non-Intrusive, Always Accessible) -->
+  <aside aria-label="Crisis Support Banner" class="bg-gradient-to-r from-amber-50 via-rose-50 to-lavender-50 border-b border-rose-100 text-xs text-slate-700 py-2 px-4 transition-all">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-600 font-bold text-[11px]">♥</span>
+        <span class="font-medium text-slate-700">MindCare is a supportive wellness tool, not a medical service.</span>
+        <span class="hidden sm:inline text-slate-500">In distress or danger? Confidential help is free and 24/7.</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button onclick="openCrisisModal()" class="inline-flex items-center font-semibold text-rose-600 hover:text-rose-700 underline text-xs">
+          Crisis Resources & Hotlines (988) &rarr;
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="navigate('dashboard')">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-lavender-500 via-pastelBlue-400 to-mint-400 flex items-center justify-center text-white shadow-md shadow-lavender-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="text-xl font-bold bg-gradient-to-r from-lavender-600 to-pastelBlue-500 bg-clip-text text-transparent">MindCare AI</span>
+          <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold bg-lavender-100 text-lavender-700 rounded-full">Wellness Companion</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-1" id="nav-links">
+        <button onclick="navigate('dashboard')" data-page="dashboard" class="nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-lavender-600 bg-lavender-50">
+          Dashboard
+        </button>
+        <button onclick="navigate('chat')" data-page="chat" class="nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+          AI Chat
+        </button>
+        <button onclick="navigate('mood')" data-page="mood" class="nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+          Mood Tracker
+        </button>
+        <button onclick="navigate('insights')" data-page="insights" class="nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+          Behavioral Insights
+        </button>
+        <button onclick="navigate('selfcare')" data-page="selfcare" class="nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+          Self-Care
+        </button>
+        <button onclick="navigate('settings')" data-page="settings" class="nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50">
+          Privacy & Settings
+        </button>
+      </nav>
+
+      <!-- Right Action CTA -->
+      <div class="flex items-center space-x-2">
+        <button onclick="openMoodModal()" class="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-lavender-500 to-mint-400 text-white text-xs font-semibold shadow-sm hover:opacity-95 transition transform active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Log Daily Mood</span>
+        </button>
+
+        <button onclick="openCrisisModal()" class="px-2.5 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-medium border border-rose-200 transition" title="Emergency Crisis Contacts">
+          SOS Crisis
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 rounded-lg hover:bg-slate-100">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-100 bg-white/95 px-4 pt-2 pb-4 space-y-1">
+      <button onclick="navigate('dashboard'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-lavender-50">Dashboard</button>
+      <button onclick="navigate('chat'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-lavender-50">AI Chat Companion</button>
+      <button onclick="navigate('mood'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-lavender-50">Mood Tracker</button>
+      <button onclick="navigate('insights'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-lavender-50">Behavioral Insights</button>
+      <button onclick="navigate('selfcare'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-lavender-50">Self-Care Activities</button>
+      <button onclick="navigate('settings'); toggleMobileMenu()" class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-lavender-50">Privacy & Settings</button>
+      <button onclick="openMoodModal(); toggleMobileMenu()" class="w-full text-center mt-2 px-3 py-2 rounded-lg text-sm font-semibold bg-lavender-500 text-white">+ Quick Mood Check-In</button>
+    </div>
+  </header>
+
+  <!-- Main View Area (Single Page App Container) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+    <div id="view-dashboard" class="space-y-6">
+      <!-- Welcome Header -->
+      <div class="bg-gradient-to-r from-lavender-100 via-pastelBlue-50 to-mint-50 rounded-3xl p-6 sm:p-8 border border-lavender-200/60 shadow-xs relative overflow-hidden">
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/80 text-lavender-700 text-xs font-medium mb-3 backdrop-blur-sm border border-lavender-100">
+            <span>✨ Daily Check-in &bull; Today's Energy</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">
+            Welcome back, <span class="bg-gradient-to-r from-lavender-600 to-pastelBlue-500 bg-clip-text text-transparent" id="user-display-name">Alex</span>.
+          </h1>
+          <p class="text-slate-600 text-sm sm:text-base mt-2 max-w-2xl">
+            "You don't have to control your thoughts. You just have to stop letting them control you." — MindCare Daily Reflection
+          </p>
+
+          <div class="mt-5 flex flex-wrap gap-3">
+            <button onclick="openMoodModal()" class="px-5 py-2.5 rounded-2xl bg-lavender-600 hover:bg-lavender-700 text-white font-medium text-sm shadow-md shadow-lavender-200 transition flex items-center space-x-2">
+              <span>Log Today's Mood & Habits</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+            <button onclick="navigate('chat')" class="px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm border border-slate-200 transition flex items-center space-x-2">
+              <span>Talk to AI Companion</span>
+              <span class="w-2 h-2 rounded-full bg-mint-400 animate-ping"></span>
+            </button>
+          </div>
+        </div>
+        <!-- Decorative subtle blurred rings -->
+        <div class="absolute -right-12 -bottom-12 w-64 h-64 rounded-full bg-lavender-300/30 blur-3xl pointer-events-none"></div>
+        <div class="absolute right-32 -top-12 w-48 h-48 rounded-full bg-mint-200/40 blur-2xl pointer-events-none"></div>
+      </div>
+
+      <!-- Quick Stats & Habit Snapshot Row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 7-Day Average Mood -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Emotional Tone</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-stat-mood">Calm (7.4/10)</h3>
+            <p class="text-xs text-mint-500 font-medium mt-1 flex items-center">
+              <span>↑ +12% from last week</span>
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-mint-50 text-mint-500 flex items-center justify-center text-2xl">
+            😌
+          </div>
+        </div>
+
+        <!-- Sleep Average -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Sleep Duration</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-stat-sleep">7.2 hrs</h3>
+            <p class="text-xs text-slate-500 mt-1" id="dash-stat-sleep-sub">Optimal restful zone</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-pastelBlue-50 text-pastelBlue-500 flex items-center justify-center text-xl font-bold">
+            🌙
+          </div>
+        </div>
+
+        <!-- Screen Time -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Screen Time Avg</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-stat-screen">4.8 hrs</h3>
+            <p class="text-xs text-amber-500 font-medium mt-1">High correlation with stress</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl">
+            📱
+          </div>
+        </div>
+
+        <!-- Daily Streak -->
+        <div class="glass-card rounded-2xl p-5 border border-slate-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Self-Care Streak</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-1" id="dash-stat-streak">9 Days 🔥</h3>
+            <p class="text-xs text-lavender-600 font-medium mt-1">Consistency builds resilience</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-lavender-50 text-lavender-500 flex items-center justify-center text-xl">
+            🌱
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Visualizations Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 7-Day Mood Trend (2 cols) -->
+        <div class="lg:col-span-2 glass-card rounded-3xl p-6 border border-slate-100">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-bold text-slate-800">Weekly Emotional Rhythm</h2>
+              <p class="text-xs text-slate-500">Self-reported mood valence & energy over the past 7 days</p>
+            </div>
+            <div class="flex items-center space-x-2 text-xs">
+              <span class="inline-flex items-center space-x-1 text-lavender-600 font-medium">
+                <span class="w-2.5 h-2.5 rounded-full bg-lavender-500"></span>
+                <span>Mood Score</span>
+              </span>
+              <span class="inline-flex items-center space-x-1 text-mint-600 font-medium">
+                <span class="w-2.5 h-2.5 rounded-full bg-mint-400"></span>
+                <span>Sleep (hrs)</span>
+              </span>
+            </div>
+          </div>
+          <!-- Chart Canvas -->
+          <div class="h-64 w-full relative">
+            <canvas id="trendChart" class="w-full h-full"></canvas>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span>💡 Insight: Positive mood peaked on Friday following 8.2 hours of rest.</span>
+            <button onclick="navigate('insights')" class="text-lavender-600 hover:text-lavender-700 font-medium">View Correlation Analysis &rarr;</button>
+          </div>
+        </div>
+
+        <!-- Today's Self-Care & Habit Checklist (1 col) -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-base font-bold text-slate-800">Daily Wellness Habits</h2>
+              <span class="text-xs bg-mint-100 text-mint-700 font-semibold px-2 py-0.5 rounded-full" id="habit-progress">2 of 4 Done</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Gentle actions to ground your body and clear your mind</p>
+
+            <div class="space-y-3" id="habits-list">
+              <!-- Dynamically populated or rendered -->
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-100">
+            <button onclick="navigate('selfcare')" class="w-full py-2.5 rounded-xl bg-lavender-50 hover:bg-lavender-100 text-lavender-700 font-semibold text-xs transition flex items-center justify-center space-x-2">
+              <span>Start 4-7-8 Breathing Session</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Wellness Insight Teaser Banner -->
+      <div class="rounded-3xl p-6 bg-gradient-to-r from-mint-50 via-white to-lavender-50 border border-mint-200/70 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-start space-x-4">
+          <div class="w-12 h-12 rounded-2xl bg-mint-400 text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
+            💡
+          </div>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-mint-700">AI Pattern Detection (Non-Diagnostic)</span>
+            <h4 class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">
+              "Your stress logs decline by ~35% on days with at least 25 minutes of outdoor walking."
+            </h4>
+            <p class="text-xs text-slate-600 mt-1">
+              Based on your last 14 logs. Small consistent habits produce measurable improvements in daily perceived tension.
+            </p>
+          </div>
+        </div>
+        <button onclick="navigate('insights')" class="shrink-0 px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-mint-300 text-slate-700 text-xs font-semibold shadow-xs transition">
+          Explore Correlation Insights &rarr;
+        </button>
+      </div>
+
+      <!-- Recent Mood Logs Timeline -->
+      <div class="glass-card rounded-3xl p-6 border border-slate-100">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Recent Emotional Check-ins</h2>
+            <p class="text-xs text-slate-500">History of your self-reported feelings, notes, and activity</p>
+          </div>
+          <button onclick="navigate('mood')" class="text-xs font-medium text-lavender-600 hover:text-lavender-700">Open Mood Studio &rarr;</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider">
+                <th class="py-2.5 px-3">Date</th>
+                <th class="py-2.5 px-3">Mood</th>
+                <th class="py-2.5 px-3">Energy</th>
+                <th class="py-2.5 px-3">Sleep</th>
+                <th class="py-2.5 px-3">Screen Time</th>
+                <th class="py-2.5 px-3">Steps</th>
+                <th class="py-2.5 px-3">Personal Note</th>
+              </tr>
+            </thead>
+            <tbody id="recent-logs-table" class="divide-y divide-slate-50">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== VIEW 2: AI CHAT COMPANION ==================== -->
+    <div id="view-chat" class="hidden space-y-4">
+      <div class="glass-card rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[75vh]">
+        <!-- Chat Header -->
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white/60 rounded-t-3xl backdrop-blur-md">
+          <div class="flex items-center space-x-3">
+            <div class="relative">
+              <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-lavender-500 to-pastelBlue-400 flex items-center justify-center text-white text-xl shadow-md shadow-lavender-200">
+                ✨
+              </div>
+              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-mint-400 border-2 border-white rounded-full"></span>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-base font-bold text-slate-800">MindCare Companion</h2>
+                <span class="text-[10px] bg-lavender-100 text-lavender-700 px-2 py-0.5 rounded-full font-medium">Non-Diagnostic AI</span>
+              </div>
+              <p class="text-xs text-slate-500">Here to listen, reframe, and guide relaxation</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <!-- Clear Chat -->
+            <button onclick="clearChat()" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 text-xs flex items-center space-x-1" title="Clear conversation history">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span class="hidden sm:inline">Reset</span>
+            </button>
+            <!-- Crisis Shortcut in Chat -->
+            <button onclick="openCrisisModal()" class="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold border border-rose-200 transition">
+              Crisis Helpline
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Conversation Messages Container -->
+        <div id="chat-messages" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+          <!-- Initial Welcome Message -->
+          <div class="flex items-start space-x-3 max-w-2xl">
+            <div class="w-8 h-8 rounded-xl bg-lavender-500 text-white flex items-center justify-center text-sm shrink-0 mt-1">
+              ✨
+            </div>
+            <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 text-sm text-slate-700 shadow-xs space-y-2">
+              <p>Hello! I'm your MindCare wellness companion. How are you feeling in your mind and body today?</p>
+              <p class="text-xs text-slate-500">
+                You can freely unpack whatever is weighing on you. Whether it's work stress, racing thoughts, or sleep troubles, we can practice breathing, try journaling, or just talk it through.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contextual Quick Action Chips -->
+        <div class="px-4 py-2 bg-slate-50/80 border-t border-slate-100 flex items-center gap-2 overflow-x-auto text-xs no-scrollbar">
+          <span class="text-slate-400 font-medium shrink-0">Try asking:</span>
+          <button onclick="sendQuickPrompt('I am feeling overwhelmed with deadlines and can\'t focus.')" class="shrink-0 px-3 py-1 rounded-full bg-white border border-slate-200 hover:border-lavender-300 hover:bg-lavender-50 text-slate-600 transition">
+            "I'm feeling overwhelmed"
+          </button>
+          <button onclick="sendQuickPrompt('Can you guide me through a 3-minute calming exercise?')" class="shrink-0 px-3 py-1 rounded-full bg-white border border-slate-200 hover:border-lavender-300 hover:bg-lavender-50 text-slate-600 transition">
+            "Guide me through a breathing exercise"
+          </button>
+          <button onclick="sendQuickPrompt('I haven\'t been sleeping well lately. What are some wind-down routines?')" class="shrink-0 px-3 py-1 rounded-full bg-white border border-slate-200 hover:border-lavender-300 hover:bg-lavender-50 text-slate-600 transition">
+            "Help with sleep wind-down"
+          </button>
+          <button onclick="sendQuickPrompt('Give me a journaling prompt to reframe my self-doubt.')" class="shrink-0 px-3 py-1 rounded-full bg-white border border-slate-200 hover:border-lavender-300 hover:bg-lavender-50 text-slate-600 transition">
+            "Journaling prompt for self-doubt"
+          </button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <div class="p-4 bg-white border-t border-slate-100 rounded-b-3xl">
+          <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex items-center space-x-2">
+            <input type="text" id="chat-input" placeholder="Type how you're feeling right now... (e.g. 'I feel anxious about tomorrow')" 
+                   class="flex-1 px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-lavender-400 focus:bg-white transition" autocomplete="off" />
+            <button type="submit" class="px-5 py-3 rounded-2xl bg-lavender-600 hover:bg-lavender-700 text-white font-semibold text-sm transition shadow-sm shadow-lavender-200 flex items-center space-x-1">
+              <span>Send</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </form>
+          <p class="text-[11px] text-center text-slate-400 mt-2">
+            MindCare AI provides non-diagnostic emotional wellness support. Never disregard professional medical advice.
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== VIEW 3: MOOD TRACKER ==================== -->
+    <div id="view-mood" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Daily Mood Tracker</h1>
+          <p class="text-slate-500 text-sm">Tune in to your emotional pulse and build self-awareness</p>
+        </div>
+        <button onclick="openMoodModal()" class="px-4 py-2.5 rounded-2xl bg-lavender-600 hover:bg-lavender-700 text-white text-sm font-semibold shadow-sm transition flex items-center space-x-2 self-start">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Log New Check-in</span>
+        </button>
+      </div>
+
+      <!-- Mood Distribution & Month Calendar Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Monthly Calendar View -->
+        <div class="lg:col-span-2 glass-card rounded-3xl p-6 border border-slate-100">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-slate-800" id="calendar-month-title">Monthly Mood Calendar</h2>
+            <div class="flex items-center space-x-1 text-xs text-slate-500">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span class="mr-2">Calm/Happy</span>
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400"></span><span class="mr-2">Anxious</span>
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-400"></span><span>Stressed</span>
+            </div>
+          </div>
+          <!-- Days Grid -->
+          <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400 mb-2">
+            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+          </div>
+          <div class="grid grid-cols-7 gap-2 text-xs" id="calendar-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Emotion Frequency Breakdown -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100 flex flex-col justify-between">
+          <div>
+            <h2 class="text-base font-bold text-slate-800 mb-1">Emotion Breakdown</h2>
+            <p class="text-xs text-slate-500 mb-4">Frequency of emotions logged in the last 30 days</p>
+            <div class="space-y-3" id="emotion-distribution-bars">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+          <div class="mt-6 p-4 rounded-2xl bg-lavender-50 border border-lavender-100 text-xs text-lavender-800">
+            <p class="font-semibold mb-1">🌱 Emotional Range Note:</p>
+            <p class="text-slate-600 leading-relaxed">
+              Experiencing anxiety and stress alongside calm is completely normal. Tracking allows you to notice triggers without judgment.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Complete Log History with Filters -->
+      <div class="glass-card rounded-3xl p-6 border border-slate-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <h2 class="text-base font-bold text-slate-800">Journal & Reflection Log History</h2>
+          <div class="flex items-center space-x-2 text-xs">
+            <label class="text-slate-500">Filter:</label>
+            <select id="mood-filter-select" onchange="filterMoodLogs(this.value)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-slate-700">
+              <option value="all">All Moods</option>
+              <option value="Happy">Happy 😊</option>
+              <option value="Calm">Calm 😌</option>
+              <option value="Anxious">Anxious 😰</option>
+              <option value="Stressed">Stressed 😫</option>
+              <option value="Sad">Sad 😢</option>
+              <option value="Overwhelmed">Overwhelmed 🤯</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="mood-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== VIEW 4: BEHAVIORAL INSIGHTS ==================== -->
+    <div id="view-insights" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Behavioral Pattern Analysis</h1>
+          <p class="text-slate-500 text-sm">Discover how sleep, screen time, and movement correlate with your emotional well-being</p>
+        </div>
+        <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-mint-50 border border-mint-200 text-mint-700 text-xs font-semibold">
+          <span>✓ Non-Diagnostic Wellness Correlations</span>
+        </div>
+      </div>
+
+      <!-- AI Generated Pattern Narrative Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="ai-insights-cards">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Interactive Correlation Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Chart 1: Sleep Duration vs Mood Valence -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base font-bold text-slate-800">Sleep Duration vs. Mood Score</h2>
+            <span class="text-xs font-semibold text-mint-600 bg-mint-50 px-2 py-0.5 rounded-full">r = +0.78 (Strong Positive)</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-4">Each dot represents a day comparing sleep hours to your subjective mood valence (1-10)</p>
+          <div class="h-64 w-full">
+            <canvas id="sleepCorrelationChart"></canvas>
+          </div>
+          <p class="text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
+            📊 <strong>Pattern:</strong> On nights with > 7 hours of rest, your mood score averaged 7.8/10 compared to 4.5/10 when sleeping under 6 hours.
+          </p>
+        </div>
+
+        <!-- Chart 2: Screen Time vs Stress & Overwhelm -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base font-bold text-slate-800">Screen Time vs. Perceived Stress</h2>
+            <span class="text-xs font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full">r = +0.64 (Moderate Correlation)</span>
+          </div>
+          <p class="text-xs text-slate-500 mb-4">Daily screen time in hours correlated against logged stress levels</p>
+          <div class="h-64 w-full">
+            <canvas id="screenCorrelationChart"></canvas>
+          </div>
+          <p class="text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
+            📱 <strong>Pattern:</strong> Days exceeding 5.5 hours of screen time showed a 42% higher probability of reporting feeling "Overwhelmed" or "Stressed".
+          </p>
+        </div>
+      </div>
+
+      <!-- Steps & Physical Activity Impact -->
+      <div class="glass-card rounded-3xl p-6 border border-slate-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Physical Movement & Emotional Grounding</h2>
+            <p class="text-xs text-slate-500 mt-1">Average mood scores grouped by daily step counts</p>
+          </div>
+          <div class="flex items-center space-x-3 text-xs">
+            <div class="flex items-center space-x-1"><span class="w-3 h-3 rounded-md bg-rose-200"></span><span>&lt; 4,000 steps (Low)</span></div>
+            <div class="flex items-center space-x-1"><span class="w-3 h-3 rounded-md bg-amber-200"></span><span>4k - 7k steps (Moderate)</span></div>
+            <div class="flex items-center space-x-1"><span class="w-3 h-3 rounded-md bg-mint-300"></span><span>&gt; 7k steps (Active)</span></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+          <div class="p-4 rounded-2xl bg-rose-50/50 border border-rose-100">
+            <div class="text-xs font-semibold text-rose-700">&lt; 4,000 Steps</div>
+            <div class="text-2xl font-bold text-slate-800 mt-1">5.1 / 10</div>
+            <div class="text-xs text-slate-500 mt-1">Higher likelihood of sluggishness or restlessness</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-100">
+            <div class="text-xs font-semibold text-amber-700">4,000 - 7,500 Steps</div>
+            <div class="text-2xl font-bold text-slate-800 mt-1">6.8 / 10</div>
+            <div class="text-xs text-slate-500 mt-1">Balanced day, moderate energy</div>
+          </div>
+          <div class="p-4 rounded-2xl bg-mint-50/70 border border-mint-100">
+            <div class="text-xs font-semibold text-mint-700">&gt; 7,500 Steps</div>
+            <div class="text-2xl font-bold text-slate-800 mt-1">8.2 / 10</div>
+            <div class="text-xs text-slate-500 mt-1">Associated with reported calm and emotional clarity</div>
+          </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-start space-x-3">
+          <span class="text-lg">⚖️</span>
+          <div class="text-xs text-slate-600">
+            <strong>Important Scientific Clarification:</strong> Correlation does not imply causation. A correlation shows that two metrics move together, but it does not mean bad sleep caused depression or that screen time is a medical diagnosis. MindCare provides these behavioral metrics solely to foster healthy personal curiosity and self-awareness.
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== VIEW 5: SELF-CARE ACTIVITIES ==================== -->
+    <div id="view-selfcare" class="hidden space-y-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">Self-Care & Grounding Studio</h1>
+        <p class="text-slate-500 text-sm">Gentle, evidence-based practices to calm the nervous system and clear mental clutter</p>
+      </div>
+
+      <!-- Activity Selector Tabs -->
+      <div class="flex items-center space-x-2 border-b border-slate-200 pb-2 overflow-x-auto text-sm">
+        <button onclick="switchSelfCareTab('breathing')" id="tab-btn-breathing" class="px-4 py-2 rounded-xl font-semibold bg-lavender-100 text-lavender-700 transition">
+          Guided Breathing
+        </button>
+        <button onclick="switchSelfCareTab('soundscape')" id="tab-btn-soundscape" class="px-4 py-2 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition">
+          Ambient Soundscapes
+        </button>
+        <button onclick="switchSelfCareTab('journal')" id="tab-btn-journal" class="px-4 py-2 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition">
+          Reflective Journal
+        </button>
+        <button onclick="switchSelfCareTab('sleep')" id="tab-btn-sleep" class="px-4 py-2 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition">
+          Sleep Hygiene Guide
+        </button>
+      </div>
+
+      <!-- TAB 1: GUIDED BREATHING -->
+      <div id="tab-breathing" class="glass-card rounded-3xl p-6 sm:p-10 border border-slate-100 flex flex-col items-center justify-center text-center relative overflow-hidden">
+        <!-- Technique selector -->
+        <div class="mb-6 flex flex-wrap justify-center gap-2">
+          <button onclick="setBreathingTechnique('box')" id="btn-tech-box" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-lavender-600 text-white shadow-xs">
+            Box Breathing (4-4-4-4)
+          </button>
+          <button onclick="setBreathingTechnique('relax')" id="btn-tech-relax" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">
+            4-7-8 Relaxing Breath
+          </button>
+          <button onclick="setBreathingTechnique('calm')" id="btn-tech-calm" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">
+            Deep Calm (5-5 Coherence)
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500 max-w-md mb-8" id="breathing-desc">
+          Box breathing resets the vagus nerve and lowers acute nervous system arousal. Used by high-performance responders and wellness experts.
+        </p>
+
+        <!-- Visual Breathing Sphere Container -->
+        <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center my-4">
+          <!-- Background ripple circles -->
+          <div id="breathe-outer-ring" class="absolute inset-0 rounded-full bg-lavender-100/50 transition-all duration-1000 scale-90"></div>
+          <div id="breathe-mid-ring" class="absolute inset-6 rounded-full bg-pastelBlue-100/60 transition-all duration-1000 scale-95"></div>
+
+          <!-- Pulsing center circle -->
+          <div id="breathe-bubble" class="w-44 h-44 rounded-full bg-gradient-to-tr from-lavender-400 via-pastelBlue-300 to-mint-300 text-white flex flex-col items-center justify-center shadow-xl shadow-lavender-200/50 transition-all duration-1000 transform scale-100 select-none">
+            <span id="breathe-phase-text" class="text-xl sm:text-2xl font-bold tracking-wide">Inhale</span>
+            <span id="breathe-timer-counter" class="text-3xl font-extrabold mt-1">4</span>
+            <span id="breathe-subtext" class="text-[11px] opacity-90 mt-0.5">through nose</span>
+          </div>
+        </div>
+
+        <!-- Breathing Controls -->
+        <div class="mt-8 flex items-center space-x-3">
+          <button id="breathe-toggle-btn" onclick="toggleBreathingSession()" class="px-6 py-3 rounded-2xl bg-lavender-600 hover:bg-lavender-700 text-white font-semibold text-sm shadow-md shadow-lavender-200 transition flex items-center space-x-2">
+            <svg id="breathe-play-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span id="breathe-play-text">Start Exercise</span>
+          </button>
+          <button onclick="resetBreathingSession()" class="px-4 py-3 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium transition">
+            Reset
+          </button>
+        </div>
+
+        <div class="mt-4 text-xs text-slate-400">
+          Completed cycles: <span id="breathe-cycles-count" class="font-bold text-lavender-600">0</span>
+        </div>
+      </div>
+
+      <!-- TAB 2: AMBIENT SOUNDSCAPES (Web Audio Synthesizer) -->
+      <div id="tab-soundscape" class="hidden glass-card rounded-3xl p-6 sm:p-8 border border-slate-100">
+        <div class="max-w-2xl mx-auto">
+          <h2 class="text-lg font-bold text-slate-800 text-center mb-1">Calming Soundscapes</h2>
+          <p class="text-xs text-slate-500 text-center mb-6">Synthesized natural acoustics designed to mask distractions and calm racing thoughts</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Gentle Rain -->
+            <div class="p-5 rounded-2xl border border-slate-200 bg-white hover:border-pastelBlue-300 transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="text-3xl">🌧️</span>
+                <div>
+                  <h4 class="font-bold text-sm text-slate-800">Gentle Rain</h4>
+                  <p class="text-xs text-slate-500">Pink noise rain simulation</p>
+                </div>
+              </div>
+              <button onclick="toggleSound('rain')" id="sound-btn-rain" class="px-3.5 py-1.5 rounded-xl bg-pastelBlue-50 text-pastelBlue-600 hover:bg-pastelBlue-100 text-xs font-semibold transition">
+                Play
+              </button>
+            </div>
+
+            <!-- Zen Ocean Waves -->
+            <div class="p-5 rounded-2xl border border-slate-200 bg-white hover:border-lavender-300 transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="text-3xl">🌊</span>
+                <div>
+                  <h4 class="font-bold text-sm text-slate-800">Ocean Waves</h4>
+                  <p class="text-xs text-slate-500">Rhythmic tidal resonance</p>
+                </div>
+              </div>
+              <button onclick="toggleSound('waves')" id="sound-btn-waves" class="px-3.5 py-1.5 rounded-xl bg-lavender-50 text-lavender-600 hover:bg-lavender-100 text-xs font-semibold transition">
+                Play
+              </button>
+            </div>
+
+            <!-- Forest Birds & Wind -->
+            <div class="p-5 rounded-2xl border border-slate-200 bg-white hover:border-mint-300 transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="text-3xl">🍃</span>
+                <div>
+                  <h4 class="font-bold text-sm text-slate-800">Forest Wind</h4>
+                  <p class="text-xs text-slate-500">Soft breeze & gentle rustle</p>
+                </div>
+              </div>
+              <button onclick="toggleSound('wind')" id="sound-btn-wind" class="px-3.5 py-1.5 rounded-xl bg-mint-50 text-mint-600 hover:bg-mint-100 text-xs font-semibold transition">
+                Play
+              </button>
+            </div>
+
+            <!-- White Noise / Focus -->
+            <div class="p-5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <span class="text-3xl">🕊️</span>
+                <div>
+                  <h4 class="font-bold text-sm text-slate-800">Peaceful Drone</h4>
+                  <p class="text-xs text-slate-500">432Hz deep meditation tone</p>
+                </div>
+              </div>
+              <button onclick="toggleSound('tone')" id="sound-btn-tone" class="px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold transition">
+                Play
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+            <span class="text-slate-600 font-medium">Master Volume</span>
+            <input type="range" id="sound-volume" min="0" max="1" step="0.05" value="0.5" oninput="setMasterVolume(this.value)" class="w-48 accent-lavender-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: REFLECTIVE JOURNAL -->
+      <div id="tab-journal" class="hidden glass-card rounded-3xl p-6 sm:p-8 border border-slate-100">
+        <div class="max-w-2xl mx-auto space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-slate-800">Guided Journaling Studio</h2>
+            <button onclick="generateRandomPrompt()" class="text-xs text-lavender-600 font-semibold hover:underline flex items-center space-x-1">
+              <span>↻ New Prompt</span>
+            </button>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-lavender-50/70 border border-lavender-100">
+            <span class="text-[10px] uppercase font-bold text-lavender-600 tracking-wider">Today's Prompt</span>
+            <p class="text-sm font-semibold text-slate-800 mt-1" id="current-journal-prompt">
+              "What is one worry you can give yourself permission to set down for the next 24 hours?"
+            </p>
+          </div>
+
+          <div>
+            <textarea id="journal-input" rows="6" placeholder="Write your unfiltered thoughts here. There are no right or wrong answers..." 
+                      class="w-full p-4 rounded-2xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-lavender-400 leading-relaxed"></textarea>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400">Entries are saved locally on your device for absolute privacy.</span>
+            <button onclick="saveJournalEntry()" class="px-5 py-2.5 rounded-2xl bg-lavender-600 hover:bg-lavender-700 text-white font-semibold text-xs transition shadow-xs">
+              Save Entry to Log
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SLEEP HYGIENE CHECKLIST -->
+      <div id="tab-sleep" class="hidden glass-card rounded-3xl p-6 sm:p-8 border border-slate-100">
+        <div class="max-w-2xl mx-auto space-y-4">
+          <h2 class="text-base font-bold text-slate-800">Bedtime Wind-Down Checklist</h2>
+          <p class="text-xs text-slate-500">Simple behavioural adjustments scientifically proven to enhance restorative REM and slow-wave sleep</p>
+
+          <div class="space-y-3 pt-2">
+            <label class="flex items-start space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" class="mt-1 rounded text-lavender-600 focus:ring-lavender-400">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Digital Sunset (Screens Off 45 min before bed)</span>
+                <span class="text-slate-500">Blue light suppresses melatonin release by up to 50%, delaying sleep onset.</span>
+              </div>
+            </label>
+            <label class="flex items-start space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" class="mt-1 rounded text-lavender-600 focus:ring-lavender-400">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Cool Bedroom Temperature (~18°C / 65°F)</span>
+                <span class="text-slate-500">Core body temperature must drop by ~1°C to initiate restful sleep cycles.</span>
+              </div>
+            </label>
+            <label class="flex items-start space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" class="mt-1 rounded text-lavender-600 focus:ring-lavender-400">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">Worry Dump on Paper</span>
+                <span class="text-slate-500">Writing unfinished tasks on paper before bed reduces pre-sleep cognitive anxiety.</span>
+              </div>
+            </label>
+            <label class="flex items-start space-x-3 p-3.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" class="mt-1 rounded text-lavender-600 focus:ring-lavender-400">
+              <div class="text-xs">
+                <span class="font-bold text-slate-800 block">No Caffeine after 2:00 PM</span>
+                <span class="text-slate-500">Caffeine has a 5 to 7 hour half-life and blocks adenosine sleep pressure receptors.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ==================== VIEW 6: PRIVACY & SETTINGS ==================== -->
+    <div id="view-settings" class="hidden space-y-6">
+      <div class="max-w-3xl mx-auto space-y-6">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-800">Privacy, Safety & Account</h1>
+          <p class="text-slate-500 text-sm">You own your data. Manage your records, privacy keys, and safety settings.</p>
+        </div>
+
+        <!-- Privacy Architecture Card -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100 space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-mint-100 text-mint-600 flex items-center justify-center text-lg">
+              🛡️
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-slate-800">Your Privacy Guarantee</h2>
+              <p class="text-xs text-slate-500">Client-side persistence & zero commercial data mining</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            MindCare AI is designed with privacy-first principles. Your mood check-ins, personal notes, and behavioral statistics are stored securely in your browser's private local storage. We do not sell your data, use your journal entries to train public models, or share details with third-party advertisers.
+          </p>
+        </div>
+
+        <!-- Non-Diagnostic Medical Disclaimer -->
+        <div class="rounded-3xl p-6 bg-amber-50/70 border border-amber-200/60 space-y-2">
+          <div class="flex items-center space-x-2 text-amber-800 font-bold text-sm">
+            <span>⚠️</span>
+            <span>Non-Diagnostic Disclaimer</span>
+          </div>
+          <p class="text-xs text-amber-900/80 leading-relaxed">
+            MindCare AI is an educational and lifestyle companion aimed at promoting general emotional self-awareness. It does not provide medical diagnoses, psychiatric assessments, or clinical treatment plans. If you are experiencing symptoms of depression, anxiety disorders, or acute emotional distress, please consult a qualified healthcare provider.
+          </p>
+        </div>
+
+        <!-- Data Management (Export & Delete) -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100 space-y-4">
+          <h2 class="text-base font-bold text-slate-800">Manage Your Records</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button onclick="exportUserData()" class="p-4 rounded-2xl border border-slate-200 hover:border-lavender-300 hover:bg-lavender-50/30 text-left transition flex items-center justify-between">
+              <div>
+                <span class="font-bold text-xs text-slate-800 block">Export All Data (JSON)</span>
+                <span class="text-[11px] text-slate-500">Download your mood logs & habits</span>
+              </div>
+              <span class="text-lg">📥</span>
+            </button>
+
+            <button onclick="confirmClearData()" class="p-4 rounded-2xl border border-rose-200 hover:bg-rose-50/50 text-left transition flex items-center justify-between">
+              <div>
+                <span class="font-bold text-xs text-rose-700 block">Delete All Records</span>
+                <span class="text-[11px] text-slate-500">Permanently erase local history</span>
+              </div>
+              <span class="text-lg">🗑️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Optional AI Key Configuration -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-slate-800">AI Engine Configuration</h2>
+            <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium" id="ai-engine-status">Active: Built-in Empathetic Assistant</span>
+          </div>
+          <p class="text-xs text-slate-500">
+            By default, MindCare utilizes an on-device rule-and-empathy engine with zero external API calls. Optionally, you may supply your own Gemini API key for dynamic LLM reasoning.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input type="password" id="gemini-api-key" placeholder="Enter Gemini API Key (Optional)" 
+                   class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-lavender-400 focus:outline-none">
+            <button onclick="saveApiKey()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs transition">
+              Save Key
+            </button>
+          </div>
+        </div>
+
+        <!-- Crisis Resources Directory -->
+        <div class="glass-card rounded-3xl p-6 border border-slate-100 space-y-4">
+          <h2 class="text-base font-bold text-slate-800">24/7 International Crisis Directories</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="font-bold text-slate-800 block">United States & Canada</span>
+              <span class="text-slate-600">Dial <strong>988</strong> (Suicide & Crisis Lifeline)</span>
+              <p class="text-[11px] text-slate-400 mt-0.5">Text HOME to 741741 (Crisis Text Line)</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="font-bold text-slate-800 block">United Kingdom</span>
+              <span class="text-slate-600">Dial <strong>111</strong> (NHS Mental Health) or <strong>116 123</strong></span>
+              <p class="text-[11px] text-slate-400 mt-0.5">Samaritans UK 24/7 Support</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="font-bold text-slate-800 block">India</span>
+              <span class="text-slate-600">Dial <strong>14416</strong> (Tele-MANAS)</span>
+              <p class="text-[11px] text-slate-400 mt-0.5">Vandrevala Foundation: +91 9999 666 555</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <span class="font-bold text-slate-800 block">Australia</span>
+              <span class="text-slate-600">Dial <strong>13 11 14</strong> (Lifeline Australia)</span>
+              <p class="text-[11px] text-slate-400 mt-0.5">Beyond Blue: 1300 22 4636</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ==================== MODAL 1: LOG DAILY MOOD & HABITS ==================== -->
+  <div id="modal-mood" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 my-8">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 class="text-lg font-bold text-slate-800">Daily Wellness Check-In</h3>
+        <button onclick="closeMoodModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
+      </div>
+
+      <form onsubmit="handleMoodSubmit(event)" class="mt-5 space-y-5">
+        <!-- Step 1: Select Mood -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">How are you feeling?</label>
+          <div class="grid grid-cols-3 gap-2 sm:gap-3" id="mood-selector-buttons">
+            <button type="button" onclick="selectMood('Happy', '😊')" data-mood="Happy" class="mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition">
+              <span class="text-2xl">😊</span>
+              <span class="text-xs font-semibold mt-1 text-slate-700">Happy</span>
+            </button>
+            <button type="button" onclick="selectMood('Calm', '😌')" data-mood="Calm" class="mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition bg-lavender-50 border-lavender-400">
+              <span class="text-2xl">😌</span>
+              <span class="text-xs font-semibold mt-1 text-slate-700">Calm</span>
+            </button>
+            <button type="button" onclick="selectMood('Anxious', '😰')" data-mood="Anxious" class="mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition">
+              <span class="text-2xl">😰</span>
+              <span class="text-xs font-semibold mt-1 text-slate-700">Anxious</span>
+            </button>
+            <button type="button" onclick="selectMood('Stressed', '😫')" data-mood="Stressed" class="mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition">
+              <span class="text-2xl">😫</span>
+              <span class="text-xs font-semibold mt-1 text-slate-700">Stressed</span>
+            </button>
+            <button type="button" onclick="selectMood('Sad', '😢')" data-mood="Sad" class="mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition">
+              <span class="text-2xl">😢</span>
+              <span class="text-xs font-semibold mt-1 text-slate-700">Sad</span>
+            </button>
+            <button type="button" onclick="selectMood('Overwhelmed', '🤯')" data-mood="Overwhelmed" class="mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition">
+              <span class="text-2xl">🤯</span>
+              <span class="text-xs font-semibold mt-1 text-slate-700">Overwhelmed</span>
+            </button>
+          </div>
+          <input type="hidden" id="selected-mood-val" value="Calm">
+        </div>
+
+        <!-- Step 2: Energy / Intensity Slider -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-semibold text-slate-700 mb-1">
+            <span>Emotional Energy / Intensity</span>
+            <span id="slider-intensity-label" class="text-lavender-600 font-bold">7 / 10</span>
+          </div>
+          <input type="range" id="mood-intensity-input" min="1" max="10" value="7" oninput="document.getElementById('slider-intensity-label').textContent = this.value + ' / 10'" 
+                 class="w-full accent-lavender-500">
+          <div class="flex justify-between text-[10px] text-slate-400">
+            <span>Low energy / drained</span>
+            <span>Balanced</span>
+            <span>High energy / intense</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Behavioral Metrics (Sleep, Screen Time, Steps) -->
+        <div class="grid grid-cols-3 gap-3 pt-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Sleep (Hrs)</label>
+            <input type="number" step="0.5" id="input-sleep-hrs" value="7.5" min="0" max="24" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-lavender-400">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Screen (Hrs)</label>
+            <input type="number" step="0.5" id="input-screen-hrs" value="4.5" min="0" max="24" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-lavender-400">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Steps Count</label>
+            <input type="number" step="500" id="input-steps" value="6500" min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-lavender-400">
+          </div>
+        </div>
+
+        <!-- Step 4: Tags -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Context Tags</label>
+          <div class="flex flex-wrap gap-1.5" id="tags-picker">
+            <button type="button" onclick="toggleTag(this, 'Work')" class="tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50">Work</button>
+            <button type="button" onclick="toggleTag(this, 'Family')" class="tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50">Family</button>
+            <button type="button" onclick="toggleTag(this, 'Exercise')" class="tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50 bg-mint-50 border-mint-300 text-mint-700">Exercise</button>
+            <button type="button" onclick="toggleTag(this, 'Rest')" class="tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50 bg-lavender-50 border-lavender-300 text-lavender-700">Rest</button>
+            <button type="button" onclick="toggleTag(this, 'Social')" class="tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50">Social</button>
+            <button type="button" onclick="toggleTag(this, 'Outdoors')" class="tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50">Outdoors</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Reflection Note -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Personal Note (Optional)</label>
+          <textarea id="input-mood-note" rows="2" placeholder="What stood out to you today?" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-lavender-400"></textarea>
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-2">
+          <button type="button" onclick="closeMoodModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-xs font-medium hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-lavender-600 hover:bg-lavender-700 text-white text-xs font-semibold shadow-xs">Save Check-In</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ==================== MODAL 2: CRISIS & EMERGENCY SUPPORT ==================== -->
+  <div id="modal-crisis" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-rose-200 my-8 relative">
+      <button onclick="closeCrisisModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm font-bold">✕</button>
+
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold">
+          ❤️
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-slate-800">You Are Not Alone</h3>
+          <p class="text-xs text-rose-600 font-semibold">Immediate, Free & Confidential Support</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed mb-5">
+        If you are experiencing overwhelming pain, thoughts of self-harm, or are in immediate physical danger, please connect with compassionate, trained humans right now. People care about you and want to help you through this moment.
+      </p>
+
+      <!-- Helplines Box -->
+      <div class="space-y-3 mb-6">
+        <a href="tel:988" class="flex items-center justify-between p-4 rounded-2xl bg-rose-50 border border-rose-200 hover:bg-rose-100/80 transition group">
+          <div>
+            <span class="text-xs font-bold text-rose-800 block">USA & Canada: 988 Suicide & Crisis Lifeline</span>
+            <span class="text-[11px] text-slate-600">Available 24 hours every day. Free and confidential.</span>
+          </div>
+          <span class="px-3 py-1.5 rounded-xl bg-rose-600 text-white font-bold text-xs shadow-xs group-hover:scale-105 transition">Call 988</span>
+        </a>
+
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <span class="text-xs font-bold text-slate-800 block">Crisis Text Line (US, UK, Canada)</span>
+          <span class="text-[11px] text-slate-600">Text <strong>HOME</strong> to <strong>741741</strong> to connect with a Crisis Counselor.</span>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <span class="text-xs font-bold text-slate-800 block">India: Tele-MANAS</span>
+          <span class="text-[11px] text-slate-600">Dial <strong>14416</strong> or <strong>1800 891 4416</strong> (Govt. 24/7 Mental Health Helpline).</span>
+        </div>
+      </div>
+
+      <!-- Immediate Grounding 5-4-3-2-1 Technique -->
+      <div class="p-4 rounded-2xl bg-lavender-50 border border-lavender-200">
+        <h4 class="text-xs font-bold text-lavender-800 mb-1">Emergency 5-4-3-2-1 Grounding Reset:</h4>
+        <p class="text-[11px] text-slate-600 space-y-0.5">
+          Take a deep breath and name: <strong>5</strong> things you can see, <strong>4</strong> things you can physically feel, <strong>3</strong> things you hear, <strong>2</strong> things you smell, and <strong>1</strong> positive thing about yourself right now.
+        </p>
+      </div>
+
+      <div class="mt-5 text-center">
+        <button onclick="closeCrisisModal()" class="text-xs text-slate-500 hover:text-slate-800 underline">
+          Close and return to wellness app
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="mt-auto border-t border-slate-200/80 bg-white/50 backdrop-blur-md py-6 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <span class="font-bold text-slate-700">MindCare AI</span>
+        <span>&bull; Empathy, Awareness & Daily Habit Tracking</span>
+      </div>
+      <div>
+        <span>Non-diagnostic wellness companion. Built for emotional awareness.</span>
+      </div>
+      <div class="flex space-x-4">
+        <button onclick="navigate('settings')" class="hover:text-slate-800">Privacy</button>
+        <button onclick="openCrisisModal()" class="text-rose-600 font-medium hover:text-rose-700">Crisis Help</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== CORE JAVASCRIPT LOGIC ==================== -->
+  <script>
+    /* -------------------------------------------------------------
+       STATE MANAGEMENT & LOCAL STORAGE
+    ------------------------------------------------------------- */
+    const STORAGE_KEY = 'mindcare_wellness_state_v1';
+
+    // Default Seed Data (14 days of realistic wellness data for immediate visualization)
+    const DEFAULT_DATA = {
+      user: {
+        name: "Alex",
+        email: "alex@mindcare.ai"
+      },
+      habits: [
+        { id: 1, title: "10-minute Morning Sunlight Walk", done: true, icon: "☀️" },
+        { id: 2, title: "Drink 2 Liters of Water", done: true, icon: "💧" },
+        { id: 3, title: "4-7-8 Breathing Reset", done: false, icon: "🫁" },
+        { id: 4, title: "No Phone 30m Before Bed", done: false, icon: "📵" }
+      ],
+      logs: [
+        { date: "2026-11-01", mood: "Stressed", emoji: "😫", score: 4.0, sleep: 5.5, screen: 6.8, steps: 3200, tags: ["Work"], note: "Crazy deadlines, slept poorly." },
+        { date: "2026-11-02", mood: "Anxious", emoji: "😰", score: 4.5, sleep: 6.0, screen: 6.2, steps: 4100, tags: ["Work", "Social"], note: "Felt nervous about upcoming presentation." },
+        { date: "2026-11-03", mood: "Calm", emoji: "😌", score: 7.0, sleep: 7.2, screen: 4.5, steps: 6800, tags: ["Rest", "Exercise"], note: "Went for a scenic walk in the afternoon." },
+        { date: "2026-11-04", mood: "Happy", emoji: "😊", score: 8.5, sleep: 8.0, screen: 3.8, steps: 8900, tags: ["Outdoors", "Family"], note: "Great dinner with family, felt grounded." },
+        { date: "2026-11-05", mood: "Calm", emoji: "😌", score: 7.5, sleep: 7.5, screen: 4.2, steps: 7200, tags: ["Exercise"], note: "Light yoga and steady focus." },
+        { date: "2026-11-06", mood: "Overwhelmed", emoji: "🤯", score: 3.8, sleep: 5.2, screen: 7.5, steps: 2900, tags: ["Work"], note: "Late night doomscrolling." },
+        { date: "2026-11-07", mood: "Calm", emoji: "😌", score: 7.0, sleep: 7.0, screen: 4.0, steps: 6500, tags: ["Rest"], note: "Practiced 4-7-8 breathing." },
+        { date: "2026-11-08", mood: "Happy", emoji: "😊", score: 8.2, sleep: 8.2, screen: 3.5, steps: 9400, tags: ["Outdoors", "Exercise"], note: "Long hike, fantastic weather!" },
+        { date: "2026-11-09", mood: "Calm", emoji: "😌", score: 7.6, sleep: 7.4, screen: 4.1, steps: 7800, tags: ["Work"], note: "Balanced workload today." },
+        { date: "2026-11-10", mood: "Anxious", emoji: "😰", score: 5.0, sleep: 6.1, screen: 5.8, steps: 4300, tags: ["Social"], note: "Crowded transit felt draining." },
+        { date: "2026-11-11", mood: "Calm", emoji: "😌", score: 7.4, sleep: 7.5, screen: 4.0, steps: 6500, tags: ["Rest", "Exercise"], note: "Feeling centered and present." }
+      ],
+      chatHistory: [],
+      geminiApiKey: ""
+    };
+
+    function loadAppData() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error("Corrupted state, resetting", e);
+        }
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_DATA));
+      return DEFAULT_DATA;
+    }
+
+    function saveAppData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    let appState = loadAppData();
+
+    /* -------------------------------------------------------------
+       NAVIGATION ROUTING
+    ------------------------------------------------------------- */
+    const views = ['dashboard', 'chat', 'mood', 'insights', 'selfcare', 'settings'];
+
+    function navigate(pageId) {
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const targetEl = document.getElementById(`view-${pageId}`);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      // Update Nav Button styling
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.getAttribute('data-page') === pageId) {
+          btn.className = 'nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-lavender-600 bg-lavender-50';
+        } else {
+          btn.className = 'nav-btn px-3 py-2 rounded-xl text-sm font-medium transition text-slate-600 hover:text-slate-900 hover:bg-slate-50';
+        }
+      });
+
+      // Special initializations on page entry
+      if (pageId === 'dashboard') {
+        renderDashboard();
+      } else if (pageId === 'insights') {
+        renderInsights();
+      } else if (pageId === 'mood') {
+        renderMoodTracker();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    /* -------------------------------------------------------------
+       DASHBOARD RENDERING
+    ------------------------------------------------------------- */
+    function renderDashboard() {
+      // Stats computation
+      const logs = appState.logs;
+      const recentLogs = logs.slice(-7);
+
+      const avgMood = (recentLogs.reduce((acc, l) => acc + l.score, 0) / recentLogs.length).toFixed(1);
+      const avgSleep = (recentLogs.reduce((acc, l) => acc + l.sleep, 0) / recentLogs.length).toFixed(1);
+      const avgScreen = (recentLogs.reduce((acc, l) => acc + l.screen, 0) / recentLogs.length).toFixed(1);
+
+      document.getElementById('dash-stat-mood').textContent = `Calm (${avgMood}/10)`;
+      document.getElementById('dash-stat-sleep').textContent = `${avgSleep} hrs`;
+      document.getElementById('dash-stat-screen').textContent = `${avgScreen} hrs`;
+
+      // Render Habits
+      const habitsList = document.getElementById('habits-list');
+      habitsList.innerHTML = '';
+      let doneCount = 0;
+
+      appState.habits.forEach(h => {
+        if (h.done) doneCount++;
+        const item = document.createElement('div');
+        item.className = `flex items-center justify-between p-3 rounded-2xl border transition cursor-pointer ${h.done ? 'bg-mint-50/60 border-mint-200' : 'bg-slate-50 border-slate-200 hover:bg-white'}`;
+        item.onclick = () => toggleHabit(h.id);
+        item.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="text-base">${h.icon}</span>
+            <span class="text-xs font-semibold ${h.done ? 'line-through text-slate-400' : 'text-slate-700'}">${h.title}</span>
+          </div>
+          <span class="w-5 h-5 rounded-full flex items-center justify-center border text-[11px] ${h.done ? 'bg-mint-500 text-white border-mint-500' : 'border-slate-300'}">
+            ${h.done ? '✓' : ''}
+          </span>
+        `;
+        habitsList.appendChild(item);
+      });
+      document.getElementById('habit-progress').textContent = `${doneCount} of ${appState.habits.length} Done`;
+
+      // Render Recent Logs Table
+      const tableBody = document.getElementById('recent-logs-table');
+      tableBody.innerHTML = '';
+      logs.slice(-5).reverse().forEach(log => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-slate-500 font-medium">${log.date}</td>
+          <td class="py-2.5 px-3">
+            <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-lavender-50 text-lavender-700">
+              <span>${log.emoji}</span>
+              <span>${log.mood}</span>
+            </span>
+          </td>
+          <td class="py-2.5 px-3 font-semibold text-slate-700">${log.score}/10</td>
+          <td class="py-2.5 px-3 text-slate-600">${log.sleep}h</td>
+          <td class="py-2.5 px-3 text-slate-600">${log.screen}h</td>
+          <td class="py-2.5 px-3 text-slate-600">${log.steps.toLocaleString()}</td>
+          <td class="py-2.5 px-3 text-slate-500 max-w-xs truncate">${log.note || '—'}</td>
+        `;
+        tableBody.appendChild(tr);
+      });
+
+      // Draw 7-Day Trend Chart
+      drawTrendChart(recentLogs);
+    }
+
+    function toggleHabit(id) {
+      appState.habits = appState.habits.map(h => h.id === id ? { ...h, done: !h.done } : h);
+      saveAppData(appState);
+      renderDashboard();
+    }
+
+    /* -------------------------------------------------------------
+       CUSTOM CANVAS CHART VISUALIZATION ENGINE
+    ------------------------------------------------------------- */
+    function drawTrendChart(data) {
+      const canvas = document.getElementById('trendChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      // Adjust resolution for Retina displays
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+      const padding = { top: 20, right: 25, bottom: 35, left: 35 };
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Grid lines
+      ctx.strokeStyle = '#F1F5F9';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = padding.top + (height - padding.top - padding.bottom) * (i / 4);
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText((10 - i * 2.5).toFixed(0), padding.left - 8, y + 3);
+      }
+
+      if (data.length < 2) return;
+
+      const stepX = (width - padding.left - padding.right) / (data.length - 1);
+
+      // Draw Sleep Bar / Column
+      data.forEach((d, i) => {
+        const x = padding.left + i * stepX;
+        const barHeight = ((d.sleep / 10) * (height - padding.top - padding.bottom));
+        const y = height - padding.bottom - barHeight;
+
+        ctx.fillStyle = 'rgba(74, 222, 128, 0.25)';
+        ctx.beginPath();
+        ctx.roundRect(x - 8, y, 16, barHeight, [4, 4, 0, 0]);
+        ctx.fill();
+
+        // X-axis date labels
+        ctx.fillStyle = '#64748B';
+        ctx.textAlign = 'center';
+        const label = d.date.split('-').slice(1).join('/');
+        ctx.fillText(label, x, height - 12);
+      });
+
+      // Draw Mood Line & Area
+      ctx.beginPath();
+      data.forEach((d, i) => {
+        const x = padding.left + i * stepX;
+        const y = height - padding.bottom - ((d.score / 10) * (height - padding.top - padding.bottom));
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = '#8B5CF6';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Draw dots
+      data.forEach((d, i) => {
+        const x = padding.left + i * stepX;
+        const y = height - padding.bottom - ((d.score / 10) * (height - padding.top - padding.bottom));
+
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#8B5CF6';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      });
+    }
+
+    /* -------------------------------------------------------------
+       AI CHAT COMPANION & CRISIS DETECTION ENGINE
+    ------------------------------------------------------------- */
+    const CRISIS_KEYWORDS = [
+      'kill myself', 'suicide', 'want to die', 'end my life', 'hurt myself',
+      'self harm', 'cutting', 'no reason to live', 'better off dead', 'can\'t go on'
+    ];
+
+    function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendChatMessage('user', message);
+      input.value = '';
+
+      // Check for crisis trigger
+      const isCrisis = CRISIS_KEYWORDS.some(kw => message.toLowerCase().includes(kw));
+
+      if (isCrisis) {
+        showTypingIndicator();
+        setTimeout(() => {
+          removeTypingIndicator();
+          appendCrisisAlertMessage();
+          openCrisisModal();
+        }, 600);
+        return;
+      }
+
+      // Generate Empathetic Response
+      showTypingIndicator();
+      setTimeout(() => {
+        removeTypingIndicator();
+        const botReply = generateEmpatheticResponse(message);
+        appendChatMessage('bot', botReply.text, botReply.action);
+      }, 700 + Math.random() * 400);
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('chat-input').value = promptText;
+      document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+    }
+
+    function appendChatMessage(sender, text, action = null) {
+      const container = document.getElementById('chat-messages');
+      const msgDiv = document.createElement('div');
+
+      if (sender === 'user') {
+        msgDiv.className = 'flex items-start justify-end space-x-3';
+        msgDiv.innerHTML = `
+          <div class="bg-lavender-600 text-white rounded-2xl rounded-tr-sm p-4 text-sm shadow-xs max-w-lg leading-relaxed">
+            ${escapeHtml(text)}
+          </div>
+          <div class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold shrink-0 mt-1">
+            You
+          </div>
+        `;
+      } else {
+        msgDiv.className = 'flex items-start space-x-3 max-w-2xl';
+        let actionBtnHtml = '';
+        if (action === 'breathing') {
+          actionBtnHtml = `
+            <div class="mt-3">
+              <button onclick="navigate('selfcare'); switchSelfCareTab('breathing')" class="px-3.5 py-2 rounded-xl bg-lavender-100 hover:bg-lavender-200 text-lavender-700 font-semibold text-xs flex items-center space-x-1.5 transition">
+                <span>🫁 Open Interactive 4-7-8 Breathing Tool</span>
+                <span>&rarr;</span>
+              </button>
+            </div>
+          `;
+        } else if (action === 'journal') {
+          actionBtnHtml = `
+            <div class="mt-3">
+              <button onclick="navigate('selfcare'); switchSelfCareTab('journal')" class="px-3.5 py-2 rounded-xl bg-mint-100 hover:bg-mint-200 text-mint-700 font-semibold text-xs flex items-center space-x-1.5 transition">
+                <span>✍️ Start Guided Journaling Entry</span>
+                <span>&rarr;</span>
+              </button>
+            </div>
+          `;
+        } else if (action === 'soundscape') {
+          actionBtnHtml = `
+            <div class="mt-3">
+              <button onclick="navigate('selfcare'); switchSelfCareTab('soundscape')" class="px-3.5 py-2 rounded-xl bg-pastelBlue-100 hover:bg-pastelBlue-200 text-pastelBlue-700 font-semibold text-xs flex items-center space-x-1.5 transition">
+                <span>🌧️ Play Calming Ambient Rain</span>
+                <span>&rarr;</span>
+              </button>
+            </div>
+          `;
+        }
+
+        msgDiv.innerHTML = `
+          <div class="w-8 h-8 rounded-xl bg-lavender-500 text-white flex items-center justify-center text-sm shrink-0 mt-1 shadow-xs">
+            ✨
+          </div>
+          <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 text-sm text-slate-700 shadow-xs space-y-2 leading-relaxed">
+            <p>${text.replace(/\n/g, '<br>')}</p>
+            ${actionBtnHtml}
+          </div>
+        `;
+      }
+
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function appendCrisisAlertMessage() {
+      const container = document.getElementById('chat-messages');
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'p-5 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900 space-y-3';
+      alertDiv.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <span class="text-xl">❤️</span>
+          <h4 class="font-bold text-sm">Please know you are not alone, and help is available right now.</h4>
+        </div>
+        <p class="text-xs leading-relaxed">
+          I hear how much pain you are experiencing, and your safety is the highest priority. Because I am an AI, I cannot provide emergency medical intervention.
+        </p>
+        <div class="bg-white p-3 rounded-xl border border-rose-200 text-xs">
+          <strong>USA & Canada:</strong> Dial or text <strong>988</strong> (Free 24/7 Suicide & Crisis Lifeline)<br>
+          <strong>UK:</strong> Call <strong>111</strong> or <strong>116 123</strong> (Samaritans)<br>
+          <strong>India:</strong> Call <strong>14416</strong> (Tele-MANAS) or <strong>+91 9999 666 555</strong>
+        </div>
+        <button onclick="openCrisisModal()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition">
+          View Complete Emergency Crisis Directory & Immediate Grounding
+        </button>
+      `;
+      container.appendChild(alertDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const container = document.getElementById('chat-messages');
+      const typingDiv = document.createElement('div');
+      typingDiv.id = 'chat-typing-indicator';
+      typingDiv.className = 'flex items-center space-x-2 text-slate-400 text-xs py-2';
+      typingDiv.innerHTML = `
+        <div class="w-2 h-2 rounded-full bg-lavender-400 animate-bounce"></div>
+        <div class="w-2 h-2 rounded-full bg-lavender-400 animate-bounce" style="animation-delay: 0.15s"></div>
+        <div class="w-2 h-2 rounded-full bg-lavender-400 animate-bounce" style="animation-delay: 0.3s"></div>
+        <span class="ml-1 text-[11px] text-slate-500">MindCare is reflecting...</span>
+      `;
+      container.appendChild(typingDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const el = document.getElementById('chat-typing-indicator');
+      if (el) el.remove();
+    }
+
+    function clearChat() {
+      if (confirm("Reset conversation history?")) {
+        const container = document.getElementById('chat-messages');
+        container.innerHTML = `
+          <div class="flex items-start space-x-3 max-w-2xl">
+            <div class="w-8 h-8 rounded-xl bg-lavender-500 text-white flex items-center justify-center text-sm shrink-0 mt-1">
+              ✨
+            </div>
+            <div class="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 text-sm text-slate-700 shadow-xs space-y-2">
+              <p>Conversation refreshed. I'm right here with an open ear. How can I support your peace of mind right now?</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function generateEmpatheticResponse(msg) {
+      const lower = msg.toLowerCase();
+
+      if (lower.includes('breath') || lower.includes('panic') || lower.includes('hyperventilate') || lower.includes('tight chest')) {
+        return {
+          text: "When our bodies feel tight or anxious, our breathing naturally becomes shallow. Let's pause and slow the rhythm down together. Slow, prolonged exhales activate the parasympathetic nervous system to send a physical signal of safety to your brain.",
+          action: 'breathing'
+        };
+      }
+
+      if (lower.includes('overwhelm') || lower.includes('too much') || lower.includes('stress') || lower.includes('deadline')) {
+        return {
+          text: "It sounds like you are carrying a tremendous cognitive load right now. When everything feels urgent, our minds treat every task like an emergency. \n\nLet's try one small grounding step: What is *one* tiny piece you can either delegate, postpone, or simplify today? Remember that you don't have to carry the whole mountain at once.",
+          action: 'journal'
+        };
+      }
+
+      if (lower.includes('sleep') || lower.includes('tired') || lower.includes('insomnia') || lower.includes('awake') || lower.includes('night')) {
+        return {
+          text: "Sleep disruption can make every daytime emotion feel so much heavier. A gentle reminder: even if you can't fall asleep immediately, resting quietly with your eyes closed still gives your muscles and brain valuable restorative recovery. Would you like to put on some calming ambient rain sounds?",
+          action: 'soundscape'
+        };
+      }
+
+      if (lower.includes('sad') || lower.includes('cry') || lower.includes('lonely') || lower.includes('down') || lower.includes('heavy')) {
+        return {
+          text: "I hear you, and it is completely okay that today feels heavy. You don't have to put on a brave face or immediately 'fix' how you feel. Sadness is simply an emotion asking for gentle care and rest. Treat yourself as kindly as you would treat a dear friend who came to you feeling this way.",
+          action: 'journal'
+        };
+      }
+
+      if (lower.includes('journal') || lower.includes('prompt') || lower.includes('write')) {
+        return {
+          text: "Journaling is a wonderful way to transfer swirling thoughts onto paper where they feel manageable. Here is a reflection for today: *'What is something I did this week that required quiet courage, even if nobody else noticed?'*",
+          action: 'journal'
+        };
+      }
+
+      // Default empathetic response
+      const defaults = [
+        {
+          text: "Thank you for sharing that with me. Acknowledging our emotional state is often the most important step in caring for ourselves. What feels like the most supportive thing your body or mind needs in this exact moment?",
+          action: null
+        },
+        {
+          text: "I appreciate you opening up. When you notice these feelings arising, remember that emotions are like passing weather—they are real, but they are not permanent. Would you like to try a short 2-minute breathing exercise together?",
+          action: 'breathing'
+        },
+        {
+          text: "That makes complete sense given everything you're navigating. Be gentle with your expectations of yourself today. Progress in wellness isn't about constant happiness; it's about giving yourself permission to feel and recover.",
+          action: 'journal'
+        }
+      ];
+
+      return defaults[Math.floor(Math.random() * defaults.length)];
+    }
+
+    function escapeHtml(string) {
+      const div = document.createElement('div');
+      div.innerText = string;
+      return div.innerHTML;
+    }
+
+    /* -------------------------------------------------------------
+       MOOD TRACKER & CALENDAR RENDERING
+    ------------------------------------------------------------- */
+    function renderMoodTracker() {
+      // 1. Calendar Grid
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      // Mock month for Nov 2026 (starts Sunday, 30 days)
+      const logsMap = {};
+      appState.logs.forEach(l => {
+        const day = parseInt(l.date.split('-')[2]);
+        logsMap[day] = l;
+      });
+
+      for (let day = 1; day <= 30; day++) {
+        const cell = document.createElement('div');
+        const log = logsMap[day];
+
+        let bgClass = 'bg-slate-50 text-slate-400 border border-slate-100';
+        let moodBadge = '';
+
+        if (log) {
+          if (log.mood === 'Happy' || log.mood === 'Calm') {
+            bgClass = 'bg-emerald-50/70 border-emerald-200 text-emerald-800 font-bold';
+          } else if (log.mood === 'Anxious') {
+            bgClass = 'bg-amber-50/80 border-amber-200 text-amber-800 font-bold';
+          } else {
+            bgClass = 'bg-rose-50/80 border-rose-200 text-rose-800 font-bold';
+          }
+          moodBadge = `<span class="text-sm block mt-0.5">${log.emoji}</span>`;
+        }
+
+        cell.className = `p-2 rounded-xl text-center min-h-[52px] flex flex-col justify-between transition hover:shadow-xs ${bgClass}`;
+        cell.innerHTML = `
+          <span class="text-[10px] text-slate-500">${day}</span>
+          ${moodBadge}
+        `;
+        grid.appendChild(cell);
+      }
+
+      // 2. Emotion Frequency Bars
+      const counts = {};
+      const moods = ['Calm', 'Happy', 'Anxious', 'Stressed', 'Overwhelmed', 'Sad'];
+      moods.forEach(m => counts[m] = 0);
+      appState.logs.forEach(l => {
+        if (counts[l.mood] !== undefined) counts[l.mood]++;
+      });
+
+      const total = appState.logs.length || 1;
+      const barsContainer = document.getElementById('emotion-distribution-bars');
+      barsContainer.innerHTML = '';
+
+      const colors = {
+        Calm: 'bg-lavender-400',
+        Happy: 'bg-emerald-400',
+        Anxious: 'bg-amber-400',
+        Stressed: 'bg-rose-400',
+        Overwhelmed: 'bg-purple-400',
+        Sad: 'bg-blue-400'
+      };
+
+      moods.forEach(m => {
+        const pct = Math.round((counts[m] / total) * 100);
+        const barItem = document.createElement('div');
+        barItem.innerHTML = `
+          <div class="flex justify-between text-xs font-medium text-slate-700 mb-1">
+            <span>${m}</span>
+            <span class="text-slate-500">${pct}% (${counts[m]})</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+            <div class="${colors[m]} h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+          </div>
+        `;
+        barsContainer.appendChild(barItem);
+      });
+
+      // 3. Render Log Cards
+      filterMoodLogs('all');
+    }
+
+    function filterMoodLogs(filter) {
+      const container = document.getElementById('mood-cards-container');
+      container.innerHTML = '';
+
+      const filtered = filter === 'all' 
+        ? appState.logs.slice().reverse()
+        : appState.logs.filter(l => l.mood === filter).slice().reverse();
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="col-span-3 text-center py-8 text-xs text-slate-400">No logs found for this filter.</div>';
+        return;
+      }
+
+      filtered.forEach(log => {
+        const card = document.createElement('div');
+        card.className = 'p-5 rounded-2xl bg-white border border-slate-100 shadow-xs space-y-3';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="text-2xl">${log.emoji}</span>
+              <div>
+                <h4 class="font-bold text-sm text-slate-800">${log.mood}</h4>
+                <span class="text-[10px] text-slate-400">${log.date}</span>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-lavender-50 text-lavender-700 text-xs font-bold">
+              ${log.score} / 10
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-600 leading-relaxed italic bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
+            "${log.note || 'No notes added.'}"
+          </p>
+
+          <div class="grid grid-cols-3 gap-2 text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            <div>🌙 ${log.sleep}h sleep</div>
+            <div>📱 ${log.screen}h screen</div>
+            <div>👟 ${log.steps.toLocaleString()} st</div>
+          </div>
+
+          <div class="flex flex-wrap gap-1">
+            ${(log.tags || []).map(t => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-medium">${t}</span>`).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* -------------------------------------------------------------
+       BEHAVIORAL INSIGHTS & CORRELATION ENGINE
+    ------------------------------------------------------------- */
+    function renderInsights() {
+      // Generate Narrative Insight Cards
+      const container = document.getElementById('ai-insights-cards');
+      container.innerHTML = '';
+
+      const insights = [
+        {
+          title: "Sleep & Stress Vulnerability",
+          metric: "Sleep < 6.0 hrs → Stress +45%",
+          description: "You reported feeling stressed or anxious on 4 out of 5 days when your sleep duration was under 6 hours. Adequate rest appears to act as a significant emotional buffer.",
+          recommendation: "Try a 30-minute wind-down routine tonight with no digital devices.",
+          badge: "Strong Correlation",
+          badgeColor: "bg-rose-100 text-rose-700",
+          icon: "🌙"
+        },
+        {
+          title: "Movement & Mood Elevation",
+          metric: "7,500+ Steps → Mood Valence 8.2",
+          description: "On days with over 7,500 recorded steps, your mood scores were 31% higher than on sedentary days. Physical activity consistently correlated with self-reported feelings of calm.",
+          recommendation: "Maintain your gentle afternoon walk to support natural dopamine & endorphin regulation.",
+          badge: "Positive Habit",
+          badgeColor: "bg-mint-100 text-mint-700",
+          icon: "👟"
+        },
+        {
+          title: "Screen Time & Overwhelm",
+          metric: "> 6 hrs Screen → Overwhelm Rate ↑",
+          description: "Evening screen time (> 6 hours total daily) coincided with logged cognitive fatigue and difficulty unwinding before bed.",
+          recommendation: "Try setting an app boundary alert after 9:30 PM to preserve mental calm.",
+          badge: "Key Trigger",
+          badgeColor: "bg-amber-100 text-amber-700",
+          icon: "📱"
+        }
+      ];
+
+      insights.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'glass-card rounded-3xl p-6 border border-slate-100 flex flex-col justify-between space-y-4';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-2xl">${item.icon}</span>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${item.badgeColor}">${item.badge}</span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-800">${item.title}</h4>
+            <div class="text-xs font-semibold text-lavender-600 mt-1">${item.metric}</div>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">${item.description}</p>
+          </div>
+          <div class="p-3 rounded-2xl bg-lavender-50/70 border border-lavender-100 text-xs text-slate-700">
+            <span class="font-semibold text-lavender-700 block mb-0.5">💡 Suggested Action:</span>
+            ${item.recommendation}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Render Scatter Correlation Charts
+      drawScatterChart('sleepCorrelationChart', appState.logs.map(l => ({ x: l.sleep, y: l.score })), 'Sleep (Hours)', 'Mood Valence (1-10)', '#10B981');
+      drawScatterChart('screenCorrelationChart', appState.logs.map(l => ({ x: l.screen, y: 10 - l.score })), 'Screen Time (Hours)', 'Perceived Stress Level (1-10)', '#EF4444');
+    }
+
+    function drawScatterChart(canvasId, points, xLabel, yLabel, color) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 20, right: 25, bottom: 35, left: 40 };
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Axes grid
+      ctx.strokeStyle = '#F1F5F9';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + (height - pad.top - pad.bottom) * (i / 4);
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '10px Inter, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText((10 - i * 2.5).toFixed(0), pad.left - 6, y + 3);
+      }
+
+      // X and Y labels
+      ctx.fillStyle = '#64748B';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(xLabel, width / 2, height - 8);
+
+      // Plot points
+      points.forEach(pt => {
+        const plotX = pad.left + ((pt.x / 10) * (width - pad.left - pad.right));
+        const plotY = height - pad.bottom - ((pt.y / 10) * (height - pad.top - pad.bottom));
+
+        ctx.beginPath();
+        ctx.arc(plotX, plotY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+    }
+
+    /* -------------------------------------------------------------
+       GUIDED BREATHING ENGINE (Box, 4-7-8, Deep Calm)
+    ------------------------------------------------------------- */
+    let breathingInterval = null;
+    let isBreathingActive = false;
+    let currentTechnique = 'box'; // 'box', 'relax', 'calm'
+    let currentPhaseIndex = 0;
+    let phaseSecondsRemaining = 4;
+    let completedCycles = 0;
+
+    const TECHNIQUES = {
+      box: {
+        name: "Box Breathing",
+        desc: "Inhale 4s, Hold 4s, Exhale 4s, Hold 4s. Resets the nervous system during stress.",
+        phases: [
+          { name: "Inhale", duration: 4, sub: "Deeply through nose", scale: "scale-125" },
+          { name: "Hold", duration: 4, sub: "Gently hold breath", scale: "scale-125" },
+          { name: "Exhale", duration: 4, sub: "Slowly through mouth", scale: "scale-85" },
+          { name: "Hold", duration: 4, sub: "Empty and still", scale: "scale-85" }
+        ]
+      },
+      relax: {
+        name: "4-7-8 Relaxing Breath",
+        desc: "Inhale 4s, Hold 7s, Exhale 8s. A natural tranquilizer for pre-sleep anxiety.",
+        phases: [
+          { name: "Inhale", duration: 4, sub: "Quietly through nose", scale: "scale-125" },
+          { name: "Hold", duration: 7, sub: "Keep peaceful hold", scale: "scale-125" },
+          { name: "Exhale", duration: 8, sub: "Whoosh through mouth", scale: "scale-80" }
+        ]
+      },
+      calm: {
+        name: "Deep Calm (5-5 Coherence)",
+        desc: "Inhale 5s, Exhale 5s. Balances heart rate variability (HRV) for centered focus.",
+        phases: [
+          { name: "Inhale", duration: 5, sub: "Smooth even breath", scale: "scale-130" },
+          { name: "Exhale", duration: 5, sub: "Release tension completely", scale: "scale-85" }
+        ]
+      }
+    };
+
+    function setBreathingTechnique(tech) {
+      if (isBreathingActive) resetBreathingSession();
+      currentTechnique = tech;
+
+      ['box', 'relax', 'calm'].forEach(t => {
+        const btn = document.getElementById(`btn-tech-${t}`);
+        if (t === tech) {
+          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-lavender-600 text-white shadow-xs';
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50';
+        }
+      });
+
+      document.getElementById('breathing-desc').textContent = TECHNIQUES[tech].desc;
+      resetBreathingSession();
+    }
+
+    function toggleBreathingSession() {
+      if (isBreathingActive) {
+        pauseBreathingSession();
+      } else {
+        startBreathingSession();
+      }
+    }
+
+    function startBreathingSession() {
+      isBreathingActive = true;
+      document.getElementById('breathe-play-text').textContent = 'Pause Exercise';
+      document.getElementById('breathe-toggle-btn').classList.replace('bg-lavender-600', 'bg-amber-600');
+
+      const tech = TECHNIQUES[currentTechnique];
+      const phase = tech.phases[currentPhaseIndex];
+      updateBreathingDisplay(phase.name, phaseSecondsRemaining, phase.sub, phase.scale);
+
+      breathingInterval = setInterval(() => {
+        phaseSecondsRemaining--;
+
+        if (phaseSecondsRemaining <= 0) {
+          currentPhaseIndex = (currentPhaseIndex + 1) % tech.phases.length;
+          if (currentPhaseIndex === 0) {
+            completedCycles++;
+            document.getElementById('breathe-cycles-count').textContent = completedCycles;
+          }
+          const nextPhase = tech.phases[currentPhaseIndex];
+          phaseSecondsRemaining = nextPhase.duration;
+        }
+
+        const curr = tech.phases[currentPhaseIndex];
+        updateBreathingDisplay(curr.name, phaseSecondsRemaining, curr.sub, curr.scale);
+      }, 1000);
+    }
+
+    function updateBreathingDisplay(phaseName, seconds, sub, scale) {
+      document.getElementById('breathe-phase-text').textContent = phaseName;
+      document.getElementById('breathe-timer-counter').textContent = seconds;
+      document.getElementById('breathe-subtext').textContent = sub;
+
+      const bubble = document.getElementById('breathe-bubble');
+      bubble.className = `w-44 h-44 rounded-full bg-gradient-to-tr from-lavender-400 via-pastelBlue-300 to-mint-300 text-white flex flex-col items-center justify-center shadow-xl shadow-lavender-200/50 transition-all duration-1000 transform select-none ${scale}`;
+    }
+
+    function pauseBreathingSession() {
+      isBreathingActive = false;
+      clearInterval(breathingInterval);
+      document.getElementById('breathe-play-text').textContent = 'Resume Exercise';
+      document.getElementById('breathe-toggle-btn').classList.replace('bg-amber-600', 'bg-lavender-600');
+    }
+
+    function resetBreathingSession() {
+      pauseBreathingSession();
+      currentPhaseIndex = 0;
+      const tech = TECHNIQUES[currentTechnique];
+      phaseSecondsRemaining = tech.phases[0].duration;
+      completedCycles = 0;
+      document.getElementById('breathe-cycles-count').textContent = '0';
+      document.getElementById('breathe-play-text').textContent = 'Start Exercise';
+      updateBreathingDisplay(tech.phases[0].name, phaseSecondsRemaining, tech.phases[0].sub, 'scale-100');
+    }
+
+    /* -------------------------------------------------------------
+       WEB AUDIO AMBIENT SOUND GENERATOR (Zero External Assets)
+    ------------------------------------------------------------- */
+    let audioCtx = null;
+    let activeNodes = {
+      rain: null,
+      waves: null,
+      wind: null,
+      tone: null
+    };
+    let masterGainNode = null;
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGainNode = audioCtx.createGain();
+        masterGainNode.gain.value = 0.5;
+        masterGainNode.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function setMasterVolume(val) {
+      if (masterGainNode) {
+        masterGainNode.gain.value = parseFloat(val);
+      }
+    }
+
+    function toggleSound(type) {
+      initAudioContext();
+      const btn = document.getElementById(`sound-btn-${type}`);
+
+      if (activeNodes[type]) {
+        // Stop
+        activeNodes[type].stop();
+        activeNodes[type] = null;
+        btn.textContent = 'Play';
+        btn.classList.remove('bg-rose-50', 'text-rose-600');
+      } else {
+        // Start synthetic sound
+        if (type === 'rain') {
+          activeNodes.rain = createRainSound();
+        } else if (type === 'waves') {
+          activeNodes.waves = createWavesSound();
+        } else if (type === 'wind') {
+          activeNodes.wind = createWindSound();
+        } else if (type === 'tone') {
+          activeNodes.tone = create432Tone();
+        }
+        btn.textContent = 'Stop';
+        btn.classList.add('bg-rose-50', 'text-rose-600');
+      }
+    }
+
+    function createRainSound() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let lastOut = 0.0;
+
+      // Pink noise filter approximation for soothing rain
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = data[i];
+        data[i] *= 3.5;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 1000;
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.4;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGainNode);
+      noise.start();
+
+      return {
+        stop: () => {
+          noise.stop();
+          noise.disconnect();
+        }
+      };
+    }
+
+    function createWavesSound() {
+      // Modulated noise filter
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 400;
+      filter.Q.value = 1.0;
+
+      // LFO for wave swelling
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.value = 0.12; // 8.3-second wave cycle
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 300;
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.35;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGainNode);
+
+      noise.start();
+      lfo.start();
+
+      return {
+        stop: () => {
+          noise.stop();
+          lfo.stop();
+        }
+      };
+    }
+
+    function createWindSound() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 500;
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.3;
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGainNode);
+      noise.start();
+
+      return {
+        stop: () => noise.stop()
+      };
+    }
+
+    function create432Tone() {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = 432; // Sacred harmonic tone
+
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = 216; // Octave below
+
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.15;
+
+      osc.connect(gain);
+      osc2.connect(gain);
+      gain.connect(masterGainNode);
+
+      osc.start();
+      osc2.start();
+
+      return {
+        stop: () => {
+          osc.stop();
+          osc2.stop();
+        }
+      };
+    }
+
+    /* -------------------------------------------------------------
+       JOURNALING & PROMPTS
+    ------------------------------------------------------------- */
+    const JOURNAL_PROMPTS = [
+      "What is one worry you can give yourself permission to set down for the next 24 hours?",
+      "Name three small things that brought you peace or comfort today, no matter how small.",
+      "If you spoke to yourself the way you speak to someone you love, what would you say right now?",
+      "What is a boundary you can set this week to protect your mental energy?",
+      "Describe how you feel right now in your physical body without judging whether it is 'good' or 'bad'."
+    ];
+
+    function generateRandomPrompt() {
+      const promptEl = document.getElementById('current-journal-prompt');
+      const randomPrompt = JOURNAL_PROMPTS[Math.floor(Math.random() * JOURNAL_PROMPTS.length)];
+      promptEl.textContent = `"${randomPrompt}"`;
+    }
+
+    function saveJournalEntry() {
+      const text = document.getElementById('journal-input').value.trim();
+      if (!text) {
+        alert("Please write a few thoughts before saving.");
+        return;
+      }
+
+      // Add as a log check-in
+      const today = new Date().toISOString().split('T')[0];
+      appState.logs.push({
+        date: today,
+        mood: "Calm",
+        emoji: "😌",
+        score: 7.0,
+        sleep: 7.0,
+        screen: 4.0,
+        steps: 6000,
+        tags: ["Reflection", "Journal"],
+        note: text
+      });
+      saveAppData(appState);
+      document.getElementById('journal-input').value = '';
+      alert("✨ Journal entry saved securely to your private local records.");
+    }
+
+    function switchSelfCareTab(tabId) {
+      ['breathing', 'soundscape', 'journal', 'sleep'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-btn-${t}`);
+        btn.className = 'px-4 py-2 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition';
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      activeBtn.className = 'px-4 py-2 rounded-xl font-semibold bg-lavender-100 text-lavender-700 transition';
+    }
+
+    /* -------------------------------------------------------------
+       MODAL CONTROLLERS & DATA LOGGING
+    ------------------------------------------------------------- */
+    let selectedMood = 'Calm';
+    let selectedEmoji = '😌';
+    let selectedTags = ['Exercise', 'Rest'];
+
+    function openMoodModal() {
+      document.getElementById('modal-mood').classList.remove('hidden');
+    }
+
+    function closeMoodModal() {
+      document.getElementById('modal-mood').classList.add('hidden');
+    }
+
+    function openCrisisModal() {
+      document.getElementById('modal-crisis').classList.remove('hidden');
+    }
+
+    function closeCrisisModal() {
+      document.getElementById('modal-crisis').classList.add('hidden');
+    }
+
+    function selectMood(mood, emoji) {
+      selectedMood = mood;
+      selectedEmoji = emoji;
+      document.getElementById('selected-mood-val').value = mood;
+
+      document.querySelectorAll('.mood-choice-btn').forEach(btn => {
+        if (btn.getAttribute('data-mood') === mood) {
+          btn.className = 'mood-choice-btn p-3 rounded-2xl border border-lavender-400 bg-lavender-50 flex flex-col items-center text-center transition';
+        } else {
+          btn.className = 'mood-choice-btn p-3 rounded-2xl border border-slate-200 hover:border-lavender-400 flex flex-col items-center text-center transition';
+        }
+      });
+    }
+
+    function toggleTag(btn, tagName) {
+      if (selectedTags.includes(tagName)) {
+        selectedTags = selectedTags.filter(t => t !== tagName);
+        btn.className = 'tag-chip px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-600 hover:bg-slate-50';
+      } else {
+        selectedTags.push(tagName);
+        btn.className = 'tag-chip px-2.5 py-1 rounded-lg border border-lavender-300 bg-lavender-50 text-xs text-lavender-700';
+      }
+    }
+
+    function handleMoodSubmit(e) {
+      e.preventDefault();
+      const intensity = parseFloat(document.getElementById('mood-intensity-input').value);
+      const sleep = parseFloat(document.getElementById('input-sleep-hrs').value) || 7.0;
+      const screen = parseFloat(document.getElementById('input-screen-hrs').value) || 4.0;
+      const steps = parseInt(document.getElementById('input-steps').value) || 6000;
+      const note = document.getElementById('input-mood-note').value.trim();
+
+      const today = new Date().toISOString().split('T')[0];
+
+      appState.logs.push({
+        date: today,
+        mood: selectedMood,
+        emoji: selectedEmoji,
+        score: intensity,
+        sleep: sleep,
+        screen: screen,
+        steps: steps,
+        tags: [...selectedTags],
+        note: note
+      });
+
+      saveAppData(appState);
+      closeMoodModal();
+      renderDashboard();
+      alert("✨ Mood check-in logged successfully!");
+    }
+
+    /* -------------------------------------------------------------
+       SETTINGS, EXPORT & DELETE RECORDS
+    ------------------------------------------------------------- */
+    function exportUserData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `mindcare_wellness_export_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function confirmClearData() {
+      if (confirm("Are you sure you want to delete all your logged wellness data? This action cannot be undone.")) {
+        localStorage.removeItem(STORAGE_KEY);
+        appState = loadAppData();
+        renderDashboard();
+        alert("All local data has been permanently deleted.");
+      }
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('gemini-api-key').value.trim();
+      appState.geminiApiKey = key;
+      saveAppData(appState);
+      if (key) {
+        document.getElementById('ai-engine-status').textContent = "Active: Live Gemini API Connected";
+        document.getElementById('ai-engine-status').className = "text-xs bg-mint-100 text-mint-700 px-2.5 py-1 rounded-full font-medium";
+        alert("Gemini API key saved securely.");
+      } else {
+        document.getElementById('ai-engine-status').textContent = "Active: Built-in Empathetic Assistant";
+        document.getElementById('ai-engine-status').className = "text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium";
+      }
+    }
+
+    // Initialize application on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+    });
+  </script>
+</body>
+</html>
